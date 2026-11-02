@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
-import 'screens/bienvenida_screen.dart';
-import 'screens/principal_screen.dart';
+import 'screens/login_screen.dart';
 import 'services/preferences_service.dart';
-import 'widgets/loading_widget.dart';
 
 void main() {
   runApp(const HabitosApp());
 }
 
-// Widget raíz de la app. Como necesito leer SharedPreferences antes
-// de decidir qué pantalla mostrar, tiene que ser Stateful.
 class HabitosApp extends StatefulWidget {
   const HabitosApp({super.key});
 
@@ -18,12 +14,10 @@ class HabitosApp extends StatefulWidget {
 }
 
 class _HabitosAppState extends State<HabitosApp> {
-  // Servicio que centraliza el acceso a SharedPreferences.
   final PreferenciasService _prefs = PreferenciasService();
 
-  // Estados que se leen al arrancar.
+  // Estados para el tema y tamaño de letra
   bool _cargando = true;
-  bool _primeraVez = true;
   bool _temaOscuro = false;
   double _tamanoLetra = 1.0;
 
@@ -33,17 +27,14 @@ class _HabitosAppState extends State<HabitosApp> {
     _inicializar();
   }
 
-  // Al arrancar la app: registro la apertura y leo los ajustes.
   Future<void> _inicializar() async {
+    // Registramos la apertura y leemos los ajustes (igual que antes)
     await _prefs.registrarApertura();
-
-    final primera = await _prefs.esPrimeraEjecucion();
     final tema = await _prefs.leerTemaOscuro();
     final tamano = await _prefs.leerTamanoLetra();
 
     if (!mounted) return;
     setState(() {
-      _primeraVez = primera;
       _temaOscuro = tema;
       _tamanoLetra = tamano;
       _cargando = false;
@@ -52,22 +43,21 @@ class _HabitosAppState extends State<HabitosApp> {
 
   @override
   Widget build(BuildContext context) {
-    // Mientras se leen los datos, mostramos un indicador de carga.
     if (_cargando) {
-      return MaterialApp(
+      // Puedes usar tu propio LoadingWidget o un CircularProgressIndicator
+      return const MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: const LoadingWidget(),
+        home: Scaffold(body: Center(child: CircularProgressIndicator())),
       );
     }
 
     return MaterialApp(
       title: 'HabitosApp',
       debugShowCheckedModeBanner: false,
-      // Aplica el tema claro u oscuro según el ajuste guardado.
+      // MANTENEMOS EL TEMA OSCURO
       themeMode: _temaOscuro ? ThemeMode.dark : ThemeMode.light,
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
-      // MediaQuery para cambiar el tamaño de letra en toda la app.
       builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(
@@ -76,11 +66,8 @@ class _HabitosAppState extends State<HabitosApp> {
           child: child!,
         );
       },
-      // Si es la primera vez que se abre, muestra Bienvenida.
-      // Si no, va directo a Principal.
-      home: _primeraVez
-          ? const BienvenidaScreen()
-          : const PrincipalScreen(),
+      //Arranca en el Login
+      home: const LoginScreen(),
     );
   }
 }
