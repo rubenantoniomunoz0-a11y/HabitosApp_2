@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _login() {
-    // Simulación en memoria (para la entrega de hoy).
+    // Simulación en memoria 
     // Si el usuario es 'admin' y la clave '1234', entramos.
     if (_userController.text == 'admin' && _passController.text == '1234') {
       // pushReplacement para que al darle "Atrás" no vuelva al login
